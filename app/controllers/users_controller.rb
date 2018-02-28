@@ -4,30 +4,15 @@ class UsersController < ApplicationController
   before_action :admin_user, only: :destroy
 
   def index
-    @users = User.where(activated: FILL_IN).paginate(page: params[:page])
+    @users = User.paginate(page: params[:page])
   end
 
   def show
     @user = User.find(params[:id])
-    redirect_to root_url and return unless FILL_IN
   end
 
   def new
     @user = User.new
-  end
-
-  def edit
-    @user = User.find(params[:id])
-  end
-
-  def update
-    @user = User.find(params[:id])
-    if @user.update_attributes(user_params)
-      flash[:success] = "Profile updated"
-      redirect_to @user
-    else
-      render 'edit'
-    end
   end
 
   def create
@@ -41,6 +26,17 @@ class UsersController < ApplicationController
     end
   end
 
+  def edit
+  end
+
+  def update
+    if @user.update_attributes(user_params)
+      flash[:success] = "Profile updated"
+      redirect_to @user
+    else
+      render 'edit'
+    end
+  end
 
   def destroy
     User.find(params[:id]).destroy
@@ -49,11 +45,6 @@ class UsersController < ApplicationController
   end
 
   private
-
-  # Confirms an admin user.
-  def admin_user
-    redirect_to(root_url) unless current_user.admin?
-  end
 
   def user_params
     params.require(:user).permit(:name, :email, :password,
@@ -75,5 +66,10 @@ class UsersController < ApplicationController
   def correct_user
     @user = User.find(params[:id])
     redirect_to(root_url) unless current_user?(@user)
+  end
+
+  # Confirms an admin user.
+  def admin_user
+    redirect_to(root_url) unless current_user.admin?
   end
 end
